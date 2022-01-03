@@ -1,0 +1,218 @@
+שאלות תרגול:
+1.  	כמה מרוויח העובד בעל מספר העובד (Emp_ID) "273407"?
+2.  	מה שמה הפרטי של העובדת בחברה שגרה בעיר Palo Alto?
+3.  	מי הכי ותיק בחברה?
+4.      כמה אנשים יש שהשם שלהם הוא Jack?  הצג את השם פרטי, משפחה, גיל, עיר ומדינה
+5.  	הציג את כל העמודות של הנשים ששמם מתחיל בJ, הן גדולות  מ55, והכתובת מייל שלהן של gmail
+6.      הציגו את הגברים ששמם מתחיל בJ, גדולים מ50, וגרים במדינת אילנויי(IL), הציגו את השם פרטי, משפחה, גיל, עיר ומדינה
+7.      הציגו את כל האנשים שבשם של אבא שלהם יש את האות j איפשהו, הם גדולים מ50, גרים בניו-יורק ומשכורתם גדולה מ100,000, הציגו השם פרטי, משפחה, משכורת, עיר ומדינה.
+8.  	הציגו את כל הנשים ששם המשפחה שלהן מתחיל בB, הן גדולות מ50 או קטנות מ30, וגרות בניו-יורק ומשכורתם גדולה מ80,000, הציגו השם פרטי, משפחה, מין, גיל, משכורת, עיר ומדינה.
+9.  	הציגו את כל האנשים שהשם הפרטי שלהם יש אותו לגבר. הציגו את השם הפרטי, שם משפחה ומין
+10.  הציגו את כל האנשים שהשם משפחה שלהם זהה לאנשים שמשכורתם גדולה מ70,000, הציגו שם פרטי, משפחה, מין, משכורת וגיל
+11.  הציגו את כל האנשים בעלי 5 אותיות בשם הפרטי ושהשם משפחה שלהם זהה לאנשים שיותר מ5 שנים בחברה, הציגו שם פרטי, משפחה, מין, משכורת וגיל
+12.  הצג את כל העובדים בחלוקה לגילאים, מי שקטן מ30 צעיר, מי שבין 30-50 מבוגר, ומי שגדול מ50 זקן
+13.  הצג את העובדים לפי זמן בחברה, פחות מ5 שנים צעיר, בין 5 ל15 מנוסה, מעל 15 מומחה, מעל 15 שנה וד"ר מומחה לרפואה
+14.  סדר את כל העובדים לפי שם פרטי ולפי שם משפחה אלפאבתי
+15.  סדר את העובדים על פי משקל עולה ואז לפי גיל יורד
+תשובות:
+1. 110241
+2. Dawne
+3. Otha
+4. 4 People Named Jack
+5. 10 
+6. 3
+7. 4
+8. 9
+9. 2,814 
+10. 4,653 
+11. 827 
+12. 5,417 
+13. 5,417
+14. 5,417 
+15. 5,417 
+
+
+תשובות 2
+
+1.86
+
+1.
+select country, count(distinct event) as evcn
+from summer
+group by country
+having evcn > 100
+order by evcn desc
+
+2.
+select athlete,medal  from summer where country="CAN"
+
+3. 
+select max(country), athlete, count(medal), group_concat(event) from summer
+group by (athlete)
+order by count(medal) desc
+limit 10    
+
+4. 
+select distinct athlete, medal, sport, event, country, city,
+count(medal) over (PARTITION by athlete) as t
+from summer 
+where city="london"
+order by t desc
+
+5.
+select dictionary.country, summer.country as countryCode, dictionary.population, summer.medal 
+from dictionary join summer
+on (dictionary.code= summer.country)
+where summer.medal ="gold" and summer.sport="Boxing" and summer.year=2008
+union
+select dictionary.country, winter.country as countryCode, dictionary.population, winter.medal
+from dictionary join winter
+on (dictionary.code= winter.country)
+where winter.medal ="gold" and winter.sport="Boxing" and winter.year=2006
+
+תשובות 3
+
+1. 
+select * from movies
+where title="Outback"
+
+2.
+select * from movies
+where year=2017 and director="Peter Sullivan"
+
+3.
+select reviews_from_users from movies
+where imdb_title_id="tt7336182"
+
+4.
+select movies.title, ratings.votes_1
+from movies join ratings
+on (movies.imdb_title_id = ratings.imdb_title_id)
+where movies.title = "Joker"
+
+5.
+select distinct production_company from movies
+
+6.
+select *, avg(duration) over(PARTITION by actors like "%Sugith Varughes%" or actors like "%Dharmajan Bolgatty%" )
+from movies
+where year !=2018 and (actors like "%Sugith Varughes%" or actors like "%Dharmajan Bolgatty%" )
+
+7.
+select title, genre, (worlwide_gross_income_in_USD-budget)
+from movies
+where production_company="DreamWorks"
+order by (worlwide_gross_income_in_USD-budget) desc
+
+8.
+select movies.title, movies.year, ratings.age_18_to_30_avg_vote, movies.actors
+from movies join ratings
+on ( movies.imdb_title_id = ratings.imdb_title_id)
+where actors like "%Lin Shaye%"
+order by age_18_to_30_avg_vote desc
+
+
+9.
+with a as (select avg(age_18_to_30_avg_vote) as d from ratings
+union
+select avg(age_0_to_18_avg_vote) from ratings
+union
+select avg(age_30_to_45_avg_vote) from ratings
+union
+select avg(age_45_plus_avg_vote) from ratings)
+select min(d) from a
+
+10.
+select distinct genre, avg(duration) over (partition by genre) as avg
+ from movies where year>2016
+order by avg desc
+limit 3
+
+11.
+select distinct year, avg(ratings.average_vote) over (partition by movies.year)
+from movies join ratings
+on (movies.imdb_title_id = ratings.imdb_title_id)
+where movies.language="english"
+
+12.
+select a.title, a.year, b.males_vote_count, b.females_vote_count , abs(b.males_avg_vote - b.females_avg_vote) as avg
+from movies as a join ratings as b
+on (a.imdb_title_id = b.imdb_title_id)
+order by avg desc
+limit 3
+
+13.
+select title, year, director, avg(duration) over (partition by director) as avgDuration, production_company, min(year) over (partition by production_company)
+  from movies
+where language="english"
+
+
+תשובות 4.
+
+1.
+SELECT * , MIN(year) OVER(PARTITION BY Athlete) as firstWin
+FROM summer
+
+2.
+with a as (select year, athlete, discipline, medal from summer
+union 
+select year, athlete, discipline, medal from winter
+)
+
+select distinct athlete, group_concat(distinct discipline), count(distinct discipline) as d from a  group by athlete
+order by d desc
+
+3.
+
+with a as (select year, athlete, discipline, country from summer
+union 
+select year, athlete, discipline, country from winter
+)
+
+select distinct athlete, group_concat(distinct country), count(distinct country) as d from a 
+group by athlete
+having d > 1
+order by d desc
+
+4.
+
+with a as (
+select dictionary.country, summer.country as countryCode, dictionary.population, count(summer.medal) over (partition by summer.country) as medalCount
+from dictionary join summer
+on (dictionary.code= summer.country)
+union
+select dictionary.country, winter.country as countryCode, dictionary.population, count(winter.medal) over (partition by winter.country) as medalCount
+from dictionary join winter
+on (dictionary.code= winter.country)
+)
+select distinct country, population, sum(medalCount) over (partition by country) as totalMedalCount, (population / sum(medalCount) over (partition by country)) as diff  from a
+order by diff desc
+limit 15
+
+5.
+
+with a as (
+select * from summer where city="barcelona"
+),b as (
+
+select distinct country, count(medal) * 100 as score, count(medal) as count
+from a 
+where medal = "Gold"
+group by country
+
+union
+
+select distinct country, count(medal) * 50 as score, count(medal) as count
+from a 
+where medal = "Silver" 
+group by country
+
+union
+
+select distinct country, count(medal) * 30 as score, count(medal) as count
+from a 
+where medal = "Bronze"
+group by country
+)
+select distinct country, (sum(score) over (partition by country) *  sum(count) over (partition by country)) as TotalScore from b
+order by TotalScore desc
