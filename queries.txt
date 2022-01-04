@@ -216,3 +216,22 @@ group by country
 )
 select distinct country, (sum(score) over (partition by country) *  sum(count) over (partition by country)) as TotalScore from b
 order by TotalScore desc
+
+
+תשובות 5
+
+1. with training as (select name as clientName, hours, coach_id from Training_sequence as a join Clients as b on (a.c_id = b.c_id))
+select clientName, name as coach, hours, hourly_date, (hours * hourly_date) as cost from training as a join Coach as b on (a.coach_id=b.id)
+
+2.1.
+with a as (select cname, count(etype) as num
+from Disaster
+where year < (2022 - 50)
+group by cname)
+
+select max(num) from a
+
+2.2
+create view Safety_rank as (
+select a.cname as city, (casualties/population)  
+from Prediction as a join City as b on(a.cname = b.cname) )
